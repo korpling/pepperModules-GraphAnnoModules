@@ -36,71 +36,71 @@ import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructu
 
 public class GraphAnnoExporterTest extends PepperExporterTest {
 	@Before
-	public void setUp(){		
+	public void setUp() {
 		setFixture(new GraphAnnoExporter());
 		getFixture().setSaltProject(SaltFactory.eINSTANCE.createSaltProject());
-		//set formats to support
-		FormatDesc formatDef= new FormatDesc();
+		// set formats to support
+		FormatDesc formatDef = new FormatDesc();
 		formatDef.setFormatName("Jason");
 		formatDef.setFormatVersion("1.0");
 		this.supportedFormatsCheck.add(formatDef);
 	}
-	
+
 	@Test
 	public void testExportJSON() {
-		CorpusDesc corpDef= new CorpusDesc();
-		FormatDesc formatDef= new FormatDesc();
+		CorpusDesc corpDef = new CorpusDesc();
+		FormatDesc formatDef = new FormatDesc();
 		formatDef.setFormatName("Jason");
 		formatDef.setFormatVersion("1.0");
 		corpDef.setFormatDesc(formatDef);
-		
+
 		corpDef.setCorpusPath(URI.createFileURI(getTempPath("graphAnnoExporter").getAbsolutePath()));
 		getFixture().setCorpusDesc(corpDef);
-		
-		SCorpusGraph corpusGraph= SaltFactory.eINSTANCE.createSCorpusGraph();
+
+		SCorpusGraph corpusGraph = SaltFactory.eINSTANCE.createSCorpusGraph();
 		this.getFixture().getSaltProject().getSCorpusGraphs().add(corpusGraph);
-		SDocument sDoc1= corpusGraph.createSDocument(URI.createURI("/c1/d1"));
+		SDocument sDoc1 = corpusGraph.createSDocument(URI.createURI("/c1/d1"));
 		sDoc1.setSDocumentGraph(SaltFactory.eINSTANCE.createSDocumentGraph());
-		String text= "Sentence number one. Sentence number two! Sentence etc. number three?";
-		STextualDS textualDS= sDoc1.getSDocumentGraph().createSTextualDS(text);
-		SToken t1= sDoc1.getSDocumentGraph().createSToken(textualDS, 0, 8);
-		SToken t2= sDoc1.getSDocumentGraph().createSToken(textualDS, 9, 15);
-		SToken t3= sDoc1.getSDocumentGraph().createSToken(textualDS, 16, 19);
-		SToken t4= sDoc1.getSDocumentGraph().createSToken(textualDS, 19, 20);
-		SToken t5= sDoc1.getSDocumentGraph().createSToken(textualDS, 21, 29);
-		SToken t6= sDoc1.getSDocumentGraph().createSToken(textualDS, 30, 36);
-		SToken t7= sDoc1.getSDocumentGraph().createSToken(textualDS, 37, 40);
-		SToken t8= sDoc1.getSDocumentGraph().createSToken(textualDS, 40, 41);
-		SToken t9= sDoc1.getSDocumentGraph().createSToken(textualDS, 42, 50);
-		SToken t10= sDoc1.getSDocumentGraph().createSToken(textualDS, 51, 55);
-		SToken t11= sDoc1.getSDocumentGraph().createSToken(textualDS, 56, 62);
-		SToken t12= sDoc1.getSDocumentGraph().createSToken(textualDS, 63, 68);
-		SToken t13= sDoc1.getSDocumentGraph().createSToken(textualDS, 68, 69);
-		EList<SToken> tokens= new BasicEList<SToken>();
+		String text = "Sentence number one. Sentence number two! Sentence etc. number three?";
+		STextualDS textualDS = sDoc1.getSDocumentGraph().createSTextualDS(text);
+		SToken t1 = sDoc1.getSDocumentGraph().createSToken(textualDS, 0, 8);
+		SToken t2 = sDoc1.getSDocumentGraph().createSToken(textualDS, 9, 15);
+		SToken t3 = sDoc1.getSDocumentGraph().createSToken(textualDS, 16, 19);
+		SToken t4 = sDoc1.getSDocumentGraph().createSToken(textualDS, 19, 20);
+		SToken t5 = sDoc1.getSDocumentGraph().createSToken(textualDS, 21, 29);
+		SToken t6 = sDoc1.getSDocumentGraph().createSToken(textualDS, 30, 36);
+		SToken t7 = sDoc1.getSDocumentGraph().createSToken(textualDS, 37, 40);
+		SToken t8 = sDoc1.getSDocumentGraph().createSToken(textualDS, 40, 41);
+		SToken t9 = sDoc1.getSDocumentGraph().createSToken(textualDS, 42, 50);
+		SToken t10 = sDoc1.getSDocumentGraph().createSToken(textualDS, 51, 55);
+		SToken t11 = sDoc1.getSDocumentGraph().createSToken(textualDS, 56, 62);
+		SToken t12 = sDoc1.getSDocumentGraph().createSToken(textualDS, 63, 68);
+		SToken t13 = sDoc1.getSDocumentGraph().createSToken(textualDS, 68, 69);
+		EList<SToken> tokens = new BasicEList<SToken>();
 		tokens.add(t1);
 		tokens.add(t2);
 		tokens.add(t3);
 		tokens.add(t4);
-		SSpan sentence1= sDoc1.getSDocumentGraph().createSSpan(tokens);
+		SSpan sentence1 = sDoc1.getSDocumentGraph().createSSpan(tokens);
 		sentence1.createSAnnotation(null, "sentence", "sentence");
-		
-		tokens= new BasicEList<SToken>();
+
+		tokens = new BasicEList<SToken>();
 		tokens.add(t5);
 		tokens.add(t6);
 		tokens.add(t7);
 		tokens.add(t8);
-		SSpan sentence2= sDoc1.getSDocumentGraph().createSSpan(tokens);
+		SSpan sentence2 = sDoc1.getSDocumentGraph().createSSpan(tokens);
 		sentence2.createSAnnotation(null, "sentence", "sentence");
-		
-		tokens= new BasicEList<SToken>();
+
+		tokens = new BasicEList<SToken>();
 		tokens.add(t9);
 		tokens.add(t10);
 		tokens.add(t11);
 		tokens.add(t12);
 		tokens.add(t13);
-		SSpan sentence3= sDoc1.getSDocumentGraph().createSSpan(tokens);
+		SSpan sentence3 = sDoc1.getSDocumentGraph().createSSpan(tokens);
 		sentence3.createSAnnotation(null, "sentence", "sentence");
-		
+
 		this.start();
 	}
 }

@@ -61,87 +61,83 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 			if ((getSDocument() != null) && (getSDocument().getSDocumentGraph() != null)) {
 				StringBuilder json = new StringBuilder();
 				json.append("{");
-					json.append("\"nodes\":[");
-					json.append("{");
-					json.append("\"attr\": {"+
-				                "\"cat\": \"meta\","+
-				                "\"sentence\": \"1\""+
-				            "},"+
-				            "\"ID\": \"0\"");
-				    json.append("},");
-					int sentenceNo= 1;
-					StringBuilder edgeOut= new StringBuilder();
-					SToken lastToken= null;
-					boolean first= true;
-					boolean firstEdge= true;
-					for (SSpan span: getSDocument().getSDocumentGraph().getSSpans()){
-						if (span.hasLabel("sentence")){
-							lastToken= null;
-							EList<STYPE_NAME> relTypes= new BasicEList<STYPE_NAME>();
-							relTypes.add(STYPE_NAME.SSPANNING_RELATION);
-							List<SToken> tokens= getSDocument().getSDocumentGraph().getSortedSTokenByText(getSDocument().getSDocumentGraph().getOverlappedSTokens(span, relTypes));
-							for (SToken token: tokens){
-								if (!first){
-									json.append(",\n");
-								}else{
-									first= false;
-								}
-								json.append("{\n");
-									json.append("\"attr\":{\n");
-										json.append("\"token\":");
-										json.append("\"");
-										json.append(getSDocument().getSDocumentGraph().getSText(token).replace("\"", "\\\""));
-										json.append("\"");
-										json.append(",\n");
-										json.append("\"sentence\":");
-										json.append("\"");
-										json.append(sentenceNo);
-										json.append("\"");
-									json.append("},\n");
-									json.append("\"ID\":");
-									json.append("\"");
-									json.append(token.getSElementPath().fragment());
-									json.append("\"");
-									json.append("\n");
-								json.append("}");
-								
-								if (lastToken!= null){
-									if (!firstEdge){
-										edgeOut.append(",\n");
-									}else{
-										firstEdge= false;
-									}
-									edgeOut.append("{\n");
-										edgeOut.append("\"start\":\"");
-										edgeOut.append(lastToken.getSElementPath().fragment());
-										edgeOut.append("\",\n");
-										edgeOut.append("\"end\":\"");
-										edgeOut.append(token.getSElementPath().fragment());
-										edgeOut.append("\",\n");
-										edgeOut.append("\"attr\":{\n");
-											edgeOut.append("\"sentence\":\"");
-											edgeOut.append(sentenceNo);
-											edgeOut.append("\"\n");
-										edgeOut.append("},\n");
-										edgeOut.append("\"ID\":");
-										edgeOut.append("\"");
-										edgeOut.append(span.getSElementPath().fragment());
-										edgeOut.append("\",");
-										edgeOut.append("\"type\":\"t\"");
-									edgeOut.append("}\n");
-								}
-								lastToken= token;
+				json.append("\"nodes\":[");
+				json.append("{");
+				json.append("\"attr\": {" + "\"cat\": \"meta\"," + "\"sentence\": \"1\"" + "}," + "\"ID\": \"0\"");
+				json.append("},");
+				int sentenceNo = 1;
+				StringBuilder edgeOut = new StringBuilder();
+				SToken lastToken = null;
+				boolean first = true;
+				boolean firstEdge = true;
+				for (SSpan span : getSDocument().getSDocumentGraph().getSSpans()) {
+					if (span.hasLabel("sentence")) {
+						lastToken = null;
+						EList<STYPE_NAME> relTypes = new BasicEList<STYPE_NAME>();
+						relTypes.add(STYPE_NAME.SSPANNING_RELATION);
+						List<SToken> tokens = getSDocument().getSDocumentGraph().getSortedSTokenByText(getSDocument().getSDocumentGraph().getOverlappedSTokens(span, relTypes));
+						for (SToken token : tokens) {
+							if (!first) {
+								json.append(",\n");
+							} else {
+								first = false;
 							}
+							json.append("{\n");
+							json.append("\"attr\":{\n");
+							json.append("\"token\":");
+							json.append("\"");
+							json.append(getSDocument().getSDocumentGraph().getSText(token).replace("\"", "\\\""));
+							json.append("\"");
+							json.append(",\n");
+							json.append("\"sentence\":");
+							json.append("\"");
+							json.append(sentenceNo);
+							json.append("\"");
+							json.append("},\n");
+							json.append("\"ID\":");
+							json.append("\"");
+							json.append(token.getSElementPath().fragment());
+							json.append("\"");
+							json.append("\n");
+							json.append("}");
+
+							if (lastToken != null) {
+								if (!firstEdge) {
+									edgeOut.append(",\n");
+								} else {
+									firstEdge = false;
+								}
+								edgeOut.append("{\n");
+								edgeOut.append("\"start\":\"");
+								edgeOut.append(lastToken.getSElementPath().fragment());
+								edgeOut.append("\",\n");
+								edgeOut.append("\"end\":\"");
+								edgeOut.append(token.getSElementPath().fragment());
+								edgeOut.append("\",\n");
+								edgeOut.append("\"attr\":{\n");
+								edgeOut.append("\"sentence\":\"");
+								edgeOut.append(sentenceNo);
+								edgeOut.append("\"\n");
+								edgeOut.append("},\n");
+								edgeOut.append("\"ID\":");
+								edgeOut.append("\"");
+								edgeOut.append(span.getSElementPath().fragment());
+								edgeOut.append("\",");
+								edgeOut.append("\"type\":\"t\"");
+								edgeOut.append("}\n");
+							}
+							lastToken = token;
 						}
-						sentenceNo++;
 					}
-					json.append("],");
-					json.append("\"edges\":[");
-					json.append(edgeOut.toString());
-					json.append("],");
-					json.append("\"version\": \"5\"");
+					sentenceNo++;
+				}
+				json.append("],");
+				json.append("\"edges\":[");
+				json.append(edgeOut.toString());
+				json.append("],");
+				json.append("\"version\": \"5\"");
 				json.append("}");
-				
+
 				File outputFile = new File(getResourceURI().toFileString());
 				if ((!outputFile.isDirectory()) && (!outputFile.getParentFile().exists())) {
 					outputFile.getParentFile().mkdirs();
