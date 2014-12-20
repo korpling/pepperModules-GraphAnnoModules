@@ -1,0 +1,30 @@
+digraph G {
+ordering=out;
+<corp1/doc1/doc1_graph#sTok1> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok2> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok3> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok4> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok5> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok6> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok7> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok8> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok9> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+<corp1/doc1/doc1_graph#sTok10> -> <corp1/doc1/doc1_graph#sText1>[color=yellow,style=filled];
+{
+rank=max;
+<corp1/doc1/doc1_graph#sText1>[shape=Mrecord,color=yellow,style=filled,label="{{corp1/doc1/doc1_graph#sText1}|{text=Is this example more complicated than it appears to be?}}"];
+}
+{
+rank=same;
+<corp1/doc1/doc1_graph#sTok1>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok1}|{saltSemantics::POS=VBZ}|{saltSemantics::LEMMA=be}}"];
+<corp1/doc1/doc1_graph#sTok2>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok2}|{saltSemantics::POS=DT}|{saltSemantics::LEMMA=this}}"];
+<corp1/doc1/doc1_graph#sTok3>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok3}|{saltSemantics::POS=NN}|{saltSemantics::LEMMA=example}}"];
+<corp1/doc1/doc1_graph#sTok4>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok4}|{saltSemantics::POS=ABR}|{saltSemantics::LEMMA=more}}"];
+<corp1/doc1/doc1_graph#sTok5>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok5}|{saltSemantics::POS=JJ}|{saltSemantics::LEMMA=complicated}}"];
+<corp1/doc1/doc1_graph#sTok6>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok6}|{saltSemantics::POS=IN}|{saltSemantics::LEMMA=than}}"];
+<corp1/doc1/doc1_graph#sTok7>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok7}|{saltSemantics::POS=PRP}|{saltSemantics::LEMMA=it}}"];
+<corp1/doc1/doc1_graph#sTok8>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok8}|{saltSemantics::POS=VBZ}|{saltSemantics::LEMMA=appear}}"];
+<corp1/doc1/doc1_graph#sTok9>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok9}|{saltSemantics::POS=TO}|{saltSemantics::LEMMA=to}}"];
+<corp1/doc1/doc1_graph#sTok10>[shape=Mrecord,color=turquoise,style=filled,label="{{corp1/doc1/doc1_graph#sTok10}|{saltSemantics::POS=VB}|{saltSemantics::LEMMA=be}}"];
+}
+}
