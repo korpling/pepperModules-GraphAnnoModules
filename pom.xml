@@ -29,10 +29,11 @@
     <version>2.1.0</version>
   </parent>
   <scm>
-    <developerConnection>scm:svn:https://korpling.german.hu-berlin.de/svn/saltnpepper/PepperModules/GraphAnnoModules/trunk</developerConnection>
-    <url>https://korpling.german.hu-berlin.de/saltnpepper/pepperModules-GraphAnnoModules</url>
+	<connection>scm:git:git://github.com/korpling/pepperModules-GraphAnnoModules.git</connection>
+	<developerConnection>scm:git:git@github.com:korpling/pepperModules-GraphAnnoModules.git</developerConnection>
+	<url>https://github.com/korpling/pepperModules-GraphAnnoModules</url>
   </scm>
-    <distributionManagement>
+  <distributionManagement>
     <repository>
       <id>korpling</id>
       <name>korpling maven repo</name>
