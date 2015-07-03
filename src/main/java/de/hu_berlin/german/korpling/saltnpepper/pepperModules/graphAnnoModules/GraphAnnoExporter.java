@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
 
 import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
@@ -41,6 +42,9 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 	public GraphAnnoExporter() {
 		super();
 		this.setName("GraphAnnoExporter");
+		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-GraphAnnoModules"));
+		setDesc("This exporter transforms a Salt model into a format for the GraphAnno tool (https://github.com/LBierkandt/graph-anno). ");
 		// set list of formats supported by this module
 		this.addSupportedFormat("Jason", "1.0", null);
 		setSDocumentEnding("json");
