@@ -20,41 +20,41 @@ package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graphAnnoModules;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.emf.common.util.BasicEList;
-import org.eclipse.emf.common.util.EList;
+import org.corpus_tools.pepper.common.DOCUMENT_STATUS;
+import org.corpus_tools.pepper.common.PepperConfiguration;
+import org.corpus_tools.pepper.impl.PepperExporterImpl;
+import org.corpus_tools.pepper.impl.PepperMapperImpl;
+import org.corpus_tools.pepper.modules.PepperExporter.EXPORT_MODE;
+import org.corpus_tools.pepper.modules.PepperMapper;
+import org.corpus_tools.pepper.modules.exceptions.PepperModuleException;
+import org.corpus_tools.salt.SALT_TYPE;
+import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SToken;
+import org.corpus_tools.salt.graph.Identifier;
 import org.eclipse.emf.common.util.URI;
 import org.osgi.service.component.annotations.Component;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepper.common.DOCUMENT_STATUS;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.PepperMapper;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.exceptions.PepperModuleException;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperExporterImpl;
-import de.hu_berlin.german.korpling.saltnpepper.pepper.modules.impl.PepperMapperImpl;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SSpan;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.STYPE_NAME;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCommon.sDocumentStructure.SToken;
-import de.hu_berlin.german.korpling.saltnpepper.salt.saltCore.SElementId;
 
 @Component(name = "GraphAnnoExporterComponent", factory = "PepperExporterComponentFactory")
 public class GraphAnnoExporter extends PepperExporterImpl {
 	public GraphAnnoExporter() {
 		super();
-		this.setName("GraphAnnoExporter");
-		setSupplierContact(URI.createURI("saltnpepper@lists.hu-berlin.de"));
+		setName("GraphAnnoExporter");
+		setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
 		setSupplierHomepage(URI.createURI("https://github.com/korpling/pepperModules-GraphAnnoModules"));
 		setDesc("This exporter transforms a Salt model into a format for the GraphAnno tool (https://github.com/LBierkandt/graph-anno). ");
 		// set list of formats supported by this module
-		this.addSupportedFormat("Jason", "1.0", null);
-		setSDocumentEnding("json");
+		addSupportedFormat("Jason", "1.0", null);
+		setDocumentEnding("json");
 		setExportMode(EXPORT_MODE.DOCUMENTS_IN_FILES);
 	}
 
 	@Override
-	public PepperMapper createPepperMapper(SElementId sElementId) {
+	public PepperMapper createPepperMapper(Identifier sElementId) {
 		PepperMapper mapper = new GraphAnnoMapper();
-		mapper.setResourceURI(getSElementId2ResourceTable().get(sElementId));
+		mapper.setResourceURI(getIdentifier2ResourceTable().get(sElementId));
 		return (mapper);
 	}
 
@@ -62,7 +62,7 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 		@Override
 		public DOCUMENT_STATUS mapSDocument() {
 
-			if ((getSDocument() != null) && (getSDocument().getSDocumentGraph() != null)) {
+			if ((getDocument() != null) && (getDocument().getDocumentGraph() != null)) {
 				StringBuilder json = new StringBuilder();
 				json.append("{");
 				json.append("\"nodes\":[");
@@ -70,16 +70,16 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 				json.append("\"attr\": {" + "\"cat\": \"meta\"," + "\"sentence\": \"1\"" + "}," + "\"ID\": \"0\"");
 				json.append("},");
 				int sentenceNo = 1;
-				StringBuilder edgeOut = new StringBuilder();
+				StringBuilder relationOut = new StringBuilder();
 				SToken lastToken = null;
 				boolean first = true;
-				boolean firstEdge = true;
-				for (SSpan span : getSDocument().getSDocumentGraph().getSSpans()) {
-					if (span.hasLabel("sentence")) {
+				boolean firstRelation = true;
+				for (SSpan span : getDocument().getDocumentGraph().getSpans()) {
+					if (span.containsLabel("sentence")) {
 						lastToken = null;
-						EList<STYPE_NAME> relTypes = new BasicEList<STYPE_NAME>();
-						relTypes.add(STYPE_NAME.SSPANNING_RELATION);
-						List<SToken> tokens = getSDocument().getSDocumentGraph().getSortedSTokenByText(getSDocument().getSDocumentGraph().getOverlappedSTokens(span, relTypes));
+						List<SALT_TYPE> relTypes = new ArrayList<SALT_TYPE>();
+						relTypes.add(SALT_TYPE.SSPANNING_RELATION);
+						List<SToken> tokens = getDocument().getDocumentGraph().getSortedTokenByText(getDocument().getDocumentGraph().getOverlappedTokens(span, relTypes));
 						for (SToken token : tokens) {
 							if (!first) {
 								json.append(",\n");
@@ -90,7 +90,7 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 							json.append("\"attr\":{\n");
 							json.append("\"token\":");
 							json.append("\"");
-							json.append(getSDocument().getSDocumentGraph().getSText(token).replace("\"", "\\\""));
+							json.append(getDocument().getDocumentGraph().getText(token).replace("\"", "\\\""));
 							json.append("\"");
 							json.append(",\n");
 							json.append("\"sentence\":");
@@ -100,35 +100,35 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 							json.append("},\n");
 							json.append("\"ID\":");
 							json.append("\"");
-							json.append(token.getSElementPath().fragment());
+							json.append(token.getPath().fragment());
 							json.append("\"");
 							json.append("\n");
 							json.append("}");
 
 							if (lastToken != null) {
-								if (!firstEdge) {
-									edgeOut.append(",\n");
+								if (!firstRelation) {
+									relationOut.append(",\n");
 								} else {
-									firstEdge = false;
+									firstRelation = false;
 								}
-								edgeOut.append("{\n");
-								edgeOut.append("\"start\":\"");
-								edgeOut.append(lastToken.getSElementPath().fragment());
-								edgeOut.append("\",\n");
-								edgeOut.append("\"end\":\"");
-								edgeOut.append(token.getSElementPath().fragment());
-								edgeOut.append("\",\n");
-								edgeOut.append("\"attr\":{\n");
-								edgeOut.append("\"sentence\":\"");
-								edgeOut.append(sentenceNo);
-								edgeOut.append("\"\n");
-								edgeOut.append("},\n");
-								edgeOut.append("\"ID\":");
-								edgeOut.append("\"");
-								edgeOut.append(span.getSElementPath().fragment());
-								edgeOut.append("\",");
-								edgeOut.append("\"type\":\"t\"");
-								edgeOut.append("}\n");
+								relationOut.append("{\n");
+								relationOut.append("\"start\":\"");
+								relationOut.append(lastToken.getPath().fragment());
+								relationOut.append("\",\n");
+								relationOut.append("\"end\":\"");
+								relationOut.append(token.getPath().fragment());
+								relationOut.append("\",\n");
+								relationOut.append("\"attr\":{\n");
+								relationOut.append("\"sentence\":\"");
+								relationOut.append(sentenceNo);
+								relationOut.append("\"\n");
+								relationOut.append("},\n");
+								relationOut.append("\"ID\":");
+								relationOut.append("\"");
+								relationOut.append(span.getPath().fragment());
+								relationOut.append("\",");
+								relationOut.append("\"type\":\"t\"");
+								relationOut.append("}\n");
 							}
 							lastToken = token;
 						}
@@ -136,8 +136,8 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 					sentenceNo++;
 				}
 				json.append("],");
-				json.append("\"edges\":[");
-				json.append(edgeOut.toString());
+				json.append("\"relations\":[");
+				json.append(relationOut.toString());
 				json.append("],");
 				json.append("\"version\": \"5\"");
 				json.append("}");
