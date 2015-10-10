@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graphAnnoModules;
+package org.corpus_tools.peppermodules.graphAnnoModules;
 
 import java.io.File;
 import java.io.FileWriter;

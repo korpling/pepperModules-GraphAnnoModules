@@ -15,7 +15,7 @@
  *
  *
  */
-package de.hu_berlin.german.korpling.saltnpepper.pepperModules.graphAnnoModules.tests;
+package org.corpus_tools.peppermodules.graphAnnoModules.tests;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +23,7 @@ import java.util.List;
 import org.corpus_tools.pepper.common.CorpusDesc;
 import org.corpus_tools.pepper.common.FormatDesc;
 import org.corpus_tools.pepper.testFramework.PepperExporterTest;
+import org.corpus_tools.peppermodules.graphAnnoModules.GraphAnnoExporter;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SCorpusGraph;
 import org.corpus_tools.salt.common.SDocument;
@@ -32,8 +33,6 @@ import org.corpus_tools.salt.common.SToken;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
 import org.junit.Test;
-
-import de.hu_berlin.german.korpling.saltnpepper.pepperModules.graphAnnoModules.GraphAnnoExporter;
 
 public class GraphAnnoExporterTest extends PepperExporterTest {
 	@Before
@@ -59,7 +58,7 @@ public class GraphAnnoExporterTest extends PepperExporterTest {
 		getFixture().setCorpusDesc(corpDef);
 
 		SCorpusGraph corpusGraph = SaltFactory.createSCorpusGraph();
-		getFixture().getSaltProject().getCorpusGraphs().add(corpusGraph);
+		getFixture().getSaltProject().addCorpusGraph(corpusGraph);
 		SDocument sDoc1 = corpusGraph.createDocument(URI.createURI("/c1/d1"));
 		sDoc1.setDocumentGraph(SaltFactory.createSDocumentGraph());
 		String text = "Sentence number one. Sentence number two! Sentence etc. number three?";
