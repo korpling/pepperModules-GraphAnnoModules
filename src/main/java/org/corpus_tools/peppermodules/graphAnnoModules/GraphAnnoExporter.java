@@ -77,9 +77,7 @@ public class GraphAnnoExporter extends PepperExporterImpl {
 				for (SSpan span : getDocument().getDocumentGraph().getSpans()) {
 					if (span.containsLabel("sentence")) {
 						lastToken = null;
-						List<SALT_TYPE> relTypes = new ArrayList<SALT_TYPE>();
-						relTypes.add(SALT_TYPE.SSPANNING_RELATION);
-						List<SToken> tokens = getDocument().getDocumentGraph().getSortedTokenByText(getDocument().getDocumentGraph().getOverlappedTokens(span, relTypes));
+						List<SToken> tokens = getDocument().getDocumentGraph().getSortedTokenByText(getDocument().getDocumentGraph().getOverlappedTokens(span, SALT_TYPE.SSPANNING_RELATION));
 						for (SToken token : tokens) {
 							if (!first) {
 								json.append(",\n");
