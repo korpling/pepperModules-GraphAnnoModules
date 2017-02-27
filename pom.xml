@@ -6,7 +6,7 @@
 		<version>3.1.0</version>
 	</parent>
 	<artifactId>pepperModules-GraphAnnoModules</artifactId>
-	<version>1.1.7</version>
+	<version>1.1.8-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 	<description>This project provides a Pepper manipulator and an exporter for data in DOT format.</description>
 	<url>https://github.com/korpling/pepperModules-GraphAnnoModules</url>
@@ -23,6 +23,6 @@
 		<connection>scm:git:git://github.com/korpling/pepperModules-GraphAnnoModules.git</connection>
 		<developerConnection>scm:git:git@github.com:korpling/pepperModules-GraphAnnoModules.git</developerConnection>
 		<url>https://github.com/korpling/pepperModules-GraphAnnoModules</url>
-	  <tag>pepperModules-GraphAnnoModules-1.1.7</tag>
+	  <tag>HEAD</tag>
   </scm>
 </project>
