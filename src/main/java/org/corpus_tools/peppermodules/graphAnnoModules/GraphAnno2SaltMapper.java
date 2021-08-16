@@ -6,7 +6,7 @@ import org.corpus_tools.pepper.impl.PepperMapperImpl;
 public class GraphAnno2SaltMapper extends PepperMapperImpl {
   @Override
   public DOCUMENT_STATUS mapSDocument() {
-    // TODO Auto-generated method stub
-    return super.mapSDocument();
+    // TODO implement
+    return DOCUMENT_STATUS.COMPLETED;
   }
 }
