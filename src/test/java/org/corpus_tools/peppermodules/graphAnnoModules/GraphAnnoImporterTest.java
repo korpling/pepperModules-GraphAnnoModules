@@ -28,7 +28,7 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
     start();
 
 
-    // This should have created a root corpus and a single document
+    // This should have created a root corpus and two documents
     assertEquals(1, getFixture().getSaltProject().getCorpusGraphs().size());
     SCorpusGraph cg = getFixture().getSaltProject().getCorpusGraphs().get(0);
     assertEquals(1, cg.getRoots().size());
@@ -36,10 +36,14 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
     SCorpus rootCorpus = (SCorpus) cg.getRoots().get(0);
     assertEquals("sampleCorpus", rootCorpus.getName());
 
-    assertEquals(1, cg.getDocuments().size());
-    SDocument doc0001 = cg.getDocuments().get(0);
-    assertEquals("0001", doc0001.getName());
+    assertEquals(2, cg.getDocuments().size());
+    SDocument doc1 = cg.getDocuments().get(0);
+    assertEquals("0001", doc1.getName());
     
+    assertEquals(2, cg.getDocuments().size());
+    SDocument doc2 = cg.getDocuments().get(1);
+    assertEquals("0002", doc2.getName());
+
   }
 
 }
