@@ -13,77 +13,99 @@
    "id":3,
    "type":"t",
    "attr":{
-    "token":"Is"
+    "token":"Is",
+    "lemma":"be",
+    "pos":"VBZ"
    }
   },
   {
    "id":4,
    "type":"t",
    "attr":{
-    "token":"this"
+    "token":"this",
+    "lemma":"this",
+    "pos":"DT"
    }
   },
   {
    "id":5,
    "type":"t",
    "attr":{
-    "token":"example"
+    "token":"example",
+    "lemma":"example",
+    "pos":"NN"
    }
   },
   {
    "id":6,
    "type":"t",
    "attr":{
-    "token":"more"
+    "token":"more",
+    "lemma":"more",
+    "pos":"RBR"
    }
   },
   {
    "id":7,
    "type":"t",
    "attr":{
-    "token":"complicated"
+    "token":"complicated",
+    "lemma":"complication",
+    "pos":"NN"
    }
   },
   {
    "id":8,
    "type":"t",
    "attr":{
-    "token":"than"
+    "token":"than",
+    "lemma":"than",
+    "pos":"IN"
    }
   },
   {
    "id":9,
    "type":"t",
    "attr":{
-    "token":"it"
+    "token":"it",
+    "lemma":"it",
+    "pos":"PRP"
    }
   },
   {
    "id":10,
    "type":"t",
    "attr":{
-    "token":"appears"
+    "token":"appears",
+    "lemma":"appear",
+    "pos":"VBZ"
    }
   },
   {
    "id":11,
    "type":"t",
    "attr":{
-    "token":"to"
+    "token":"to",
+    "lemma":"to",
+    "pos":"TO"
    }
   },
   {
    "id":12,
    "type":"t",
    "attr":{
-    "token":"be"
+    "token":"be",
+    "lemma":"be",
+    "pos":"VB"
    }
   },
   {
    "id":13,
    "type":"t",
    "attr":{
-    "token":"?"
+    "token":"?",
+    "lemma":"?",
+    "pos":"."
    }
   },
   {

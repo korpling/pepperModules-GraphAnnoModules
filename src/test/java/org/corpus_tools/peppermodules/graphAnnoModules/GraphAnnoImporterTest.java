@@ -1,10 +1,12 @@
 package org.corpus_tools.peppermodules.graphAnnoModules;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.corpus_tools.pepper.common.CorpusDesc;
 import org.corpus_tools.pepper.testFramework.PepperImporterTest;
 import org.corpus_tools.pepper.testFramework.PepperTestUtil;
@@ -66,17 +68,22 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
 
     List<SToken> token = doc.getDocumentGraph().getSortedTokenByText();
     assertEquals(11, token.size());
-    assertEquals("Is", g.getText(token.get(0)));
-    assertEquals("this", g.getText(token.get(1)));
-    assertEquals("example", g.getText(token.get(2)));
-    assertEquals("more", g.getText(token.get(3)));
-    assertEquals("complicated", g.getText(token.get(4)));
-    assertEquals("than", g.getText(token.get(5)));
-    assertEquals("it", g.getText(token.get(6)));
-    assertEquals("appears", g.getText(token.get(7)));
-    assertEquals("to", g.getText(token.get(8)));
-    assertEquals("be", g.getText(token.get(9)));
-    assertEquals("?", g.getText(token.get(10)));
+    List<String> tokenTexts = token.stream().map(t -> g.getText(t)).collect(Collectors.toList());
+    assertArrayEquals(new String[] {"Is", "this", "example", "more", "complicated", "than", "it",
+        "appears", "to", "be", "?"}, tokenTexts.toArray());
+
+    // check lemma and pos tags
+    List<String> pos = token.stream().map(t -> t.getAnnotation("pos").getValue_STEXT())
+        .collect(Collectors.toList());
+    List<String> lemma =
+        token.stream().map(t -> t.getAnnotation("lemma").getValue_STEXT())
+            .collect(Collectors.toList());
+
+    assertArrayEquals(
+        new String[] {"VBZ", "DT", "NN", "RBR", "NN", "IN", "PRP", "VBZ", "TO", "VB", "."},
+        pos.toArray());
+    assertArrayEquals(new String[] {"be", "this", "example", "more", "complication", "than", "it",
+        "appear", "to", "be", "?"}, lemma.toArray());
   }
 
 }
