@@ -14,7 +14,7 @@ public class MasterFile {
   private List<Object> annotators;
   private Map<String, Object> file_settings;
 
-  private List<Object> files;
+  private List<String> files;
   private long max_node_id;
   private long max_edge_id;
 
@@ -86,11 +86,11 @@ public class MasterFile {
     this.file_settings = file_settings;
   }
 
-  public List<Object> getFiles() {
+  public List<String> getFiles() {
     return files;
   }
 
-  public void setFiles(List<Object> files) {
+  public void setFiles(List<String> files) {
     this.files = files;
   }
 
