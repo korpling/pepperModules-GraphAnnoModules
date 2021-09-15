@@ -14,6 +14,7 @@ import org.corpus_tools.salt.common.SCorpus;
 import org.corpus_tools.salt.common.SCorpusGraph;
 import org.corpus_tools.salt.common.SDocument;
 import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SSpan;
 import org.corpus_tools.salt.common.SToken;
 import org.eclipse.emf.common.util.URI;
 import org.junit.Before;
@@ -52,7 +53,7 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
   }
 
   @Test
-  public void testTokenization() {
+  public void testDocumentMapping() {
     start();
 
     assertEquals(2, getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().size());
@@ -66,6 +67,7 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
     assertEquals("Is this example more complicated than it appears to be ? ",
         g.getTextualDSs().get(0).getText());
 
+    // Test token and token annotations
     List<SToken> token = doc.getDocumentGraph().getSortedTokenByText();
     assertEquals(11, token.size());
     List<String> tokenTexts = token.stream().map(t -> g.getText(t)).collect(Collectors.toList());
@@ -84,6 +86,14 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
         pos.toArray());
     assertArrayEquals(new String[] {"be", "this", "example", "more", "complication", "than", "it",
         "appear", "to", "be", "?"}, lemma.toArray());
+
+    // Check that sentence spans have been created
+    List<SSpan> spans = doc.getDocumentGraph().getSpans();
+    assertNotNull(spans);
+    List<SSpan> sentences =
+        spans.stream().filter(s -> s.getAnnotation("salt::unit") != null)
+            .collect(Collectors.toList());
+    assertEquals(1, sentences.size());
   }
 
 }

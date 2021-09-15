@@ -6,10 +6,12 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -21,12 +23,18 @@ import org.corpus_tools.peppermodules.graphAnnoModules.model.EdgeType;
 import org.corpus_tools.peppermodules.graphAnnoModules.model.Node;
 import org.corpus_tools.peppermodules.graphAnnoModules.model.NodeType;
 import org.corpus_tools.peppermodules.graphAnnoModules.model.PartFile;
+import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SSpan;
 import org.corpus_tools.salt.common.STextualDS;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotationContainer;
+import org.corpus_tools.salt.semantics.SSentenceAnnotation;
 
 public class GraphAnno2SaltMapper extends PepperMapperImpl {
+
+  private final Map<Long, SToken> tokenById = new HashMap<>();
+
   @Override
   public DOCUMENT_STATUS mapSDocument() {
 
@@ -37,6 +45,7 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
       PartFile partFile = gson.fromJson(reader, PartFile.class);
 
       mapToken(partFile);
+      mapSentences(partFile);
 
       return DOCUMENT_STATUS.COMPLETED;
     } catch (IOException ex) {
@@ -81,10 +90,31 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
     for (int i = 0; i < token.size() && i < tokenNodes.size(); i++) {
       SToken saltToken = token.get(i);
       Node graphAnnoNode = tokenNodes.get(i);
+      this.tokenById.put(graphAnnoNode.getId(), saltToken);
       saltToken.setName("" + graphAnnoNode.getId());
       mapAttributes(graphAnnoNode.getAttr(), saltToken);
     }
-    
+  }
+
+
+  private void mapSentences(PartFile f) {
+    SDocumentGraph g = getDocument().getDocumentGraph();
+
+    // Get all sentence nodes
+    Map<Long, Node> sentenceNodesById =
+        f.getNodes().parallelStream().filter(n -> n.getType() == NodeType.s)
+            .collect(Collectors.toMap(Node::getId, n -> n));
+    for (Map.Entry<Long, Node> entry : sentenceNodesById.entrySet()) {
+      // Get all token belonging to this node
+      Set<SToken> coveredToken = f.getEdges().parallelStream()
+          .filter(e -> e.getType() == EdgeType.s && e.getStart() == entry.getKey())
+          .map(e -> this.tokenById.get(e.getEnd())).filter(Objects::nonNull)
+          .collect(Collectors.toSet());
+      // Create span node for this sentence
+      SSpan sentenceSpan = g.createSpan(new LinkedList<>(coveredToken));
+      SSentenceAnnotation sentenceAnno = SaltFactory.createSSentenceAnnotation();
+      sentenceSpan.addAnnotation(sentenceAnno);
+    }
   }
 
   private void mapAttributes(Map<String, Object> attributes, SAnnotationContainer saltObject) {
