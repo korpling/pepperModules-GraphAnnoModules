@@ -37,7 +37,7 @@ import org.osgi.service.component.annotations.Component;
 public class GraphAnnoImporter extends PepperImporterImpl {
   public GraphAnnoImporter() {
     super();
-    setName("GraphAnnoExporter");
+    setName("GraphAnnoImporter");
     setSupplierContact(URI.createURI(PepperConfiguration.EMAIL));
     setSupplierHomepage(
         URI.createURI("https://github.com/korpling/pepperModules-GraphAnnoModules"));
