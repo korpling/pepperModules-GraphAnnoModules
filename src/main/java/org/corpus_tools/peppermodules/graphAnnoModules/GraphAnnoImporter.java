@@ -15,12 +15,12 @@
  */
 package org.corpus_tools.peppermodules.graphAnnoModules;
 
+import com.google.common.io.Files;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.FilenameUtils;
 import org.corpus_tools.pepper.common.PepperConfiguration;
 import org.corpus_tools.pepper.impl.PepperImporterImpl;
 import org.corpus_tools.pepper.modules.PepperMapper;
@@ -82,7 +82,8 @@ public class GraphAnnoImporter extends PepperImporterImpl {
             throw new PepperModuleException(
                 "Linked file " + linkedFile.getAbsolutePath() + " does not exist.");
           }
-          String docName = FilenameUtils.removeExtension(linkedFile.getName());
+
+          String docName = Files.getNameWithoutExtension(linkedFile.getName());
           SDocument doc = getCorpusGraph().createDocument(rootCorpus, docName);
           this.getIdentifier2ResourceTable().put(doc.getIdentifier(),
               URI.createFileURI(linkedFile.getAbsolutePath()));

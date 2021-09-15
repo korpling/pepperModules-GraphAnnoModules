@@ -2,3 +2,5 @@
 /META-INF/
 /OSGI-INF/
 /.project
+/.classpath
+/.settings
