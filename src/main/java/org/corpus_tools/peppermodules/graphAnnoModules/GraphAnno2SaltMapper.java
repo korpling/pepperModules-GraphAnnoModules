@@ -25,15 +25,20 @@ import org.corpus_tools.peppermodules.graphAnnoModules.model.NodeType;
 import org.corpus_tools.peppermodules.graphAnnoModules.model.PartFile;
 import org.corpus_tools.salt.SaltFactory;
 import org.corpus_tools.salt.common.SDocumentGraph;
+import org.corpus_tools.salt.common.SDominanceRelation;
 import org.corpus_tools.salt.common.SSpan;
+import org.corpus_tools.salt.common.SStructure;
+import org.corpus_tools.salt.common.SStructuredNode;
 import org.corpus_tools.salt.common.STextualDS;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotationContainer;
+import org.corpus_tools.salt.core.SNode;
 import org.corpus_tools.salt.semantics.SSentenceAnnotation;
 
 public class GraphAnno2SaltMapper extends PepperMapperImpl {
 
   private final Map<Long, SToken> tokenById = new HashMap<>();
+  private final Map<Long, SStructure> structById = new HashMap<>();
 
   @Override
   public DOCUMENT_STATUS mapSDocument() {
@@ -46,6 +51,8 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
 
       mapToken(partFile);
       mapSentences(partFile);
+      mapAnnotationNodes(partFile);
+      mapAnnotationEdges(partFile);
 
       return DOCUMENT_STATUS.COMPLETED;
     } catch (IOException ex) {
@@ -115,6 +122,35 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
       SSentenceAnnotation sentenceAnno = SaltFactory.createSSentenceAnnotation();
       sentenceSpan.addAnnotation(sentenceAnno);
     }
+  }
+  
+  private void mapAnnotationNodes(PartFile f) {
+	 SDocumentGraph g = getDocument().getDocumentGraph();
+	 f.getNodes().stream().filter(n -> n.getType() == NodeType.a).forEach(n -> {
+		SStructure struct =  SaltFactory.createSStructure();
+		this.structById.put(n.getId(), struct);
+		mapAttributes(n.getAttr(), struct);
+		g.addNode(struct);
+	 });
+  }
+  
+  private void mapAnnotationEdges(PartFile f) {
+	  SDocumentGraph g = getDocument().getDocumentGraph();
+	  f.getEdges().stream().filter(e -> e.getType() == EdgeType.a).forEach(e -> {
+		  // Try to get source and target nodes
+		  SStructure source = this.structById.get(e.getStart());
+		  SStructuredNode target = this.structById.get(e.getEnd());
+		  if(target == null) {
+			  target = this.tokenById.get(e.getEnd());
+		  }
+		  if(source != null && target != null) {
+			  SDominanceRelation rel = SaltFactory.createSDominanceRelation();
+			  mapAttributes(e.getAttr(), rel);
+			  rel.setSource(source);
+			  rel.setTarget(target);
+			  g.addRelation(rel);
+		  }
+	  });
   }
 
   private void mapAttributes(Map<String, Object> attributes, SAnnotationContainer saltObject) {
