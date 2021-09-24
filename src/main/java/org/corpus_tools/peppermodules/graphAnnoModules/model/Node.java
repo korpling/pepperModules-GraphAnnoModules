@@ -6,6 +6,8 @@ import java.util.Map;
 public class Node {
 
   private long id;
+  private Double start;
+  private Double end;
   private NodeType type;
   private Map<String, Object> attr;
   private List<String> layer;
@@ -42,6 +44,23 @@ public class Node {
   public void setLayer(List<String> layer) {
     this.layer = layer;
   }
+
+  public Double getStart() {
+    return start;
+  }
+
+  public void setStart(Double start) {
+    this.start = start;
+  }
+
+  public Double getEnd() {
+    return end;
+  }
+
+  public void setEnd(Double end) {
+    this.end = end;
+  }
+
 
 
 }
