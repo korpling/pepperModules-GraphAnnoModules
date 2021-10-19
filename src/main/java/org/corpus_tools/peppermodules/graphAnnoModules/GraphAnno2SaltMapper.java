@@ -148,10 +148,8 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
     // Get all token belonging to this node
     Set<Node> coveredTokenIds = f.getEdges().parallelStream()
         .filter(e -> e.getType() == EdgeType.s && e.getStart() == sentence.getId())
-        .map(e -> this.nodeById.get(e.getEnd()))
-        .filter(Objects::nonNull)
-        .filter(n -> n.getType() == NodeType.t)
-        .collect(Collectors.toSet());
+        .map(e -> this.nodeById.get(e.getEnd())).filter(Objects::nonNull)
+        .filter(n -> n.getType() == NodeType.t).collect(Collectors.toSet());
 
     // Sort the tokens by the ordering edges
     List<Node> sortedToken = getSortedTokenNodes(f, coveredTokenIds);
@@ -206,9 +204,11 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
   }
 
   private void mapAttributes(Map<String, Object> attributes, SAnnotationContainer saltObject) {
-    for (Map.Entry<String, Object> a : attributes.entrySet()) {
-      // TODO: handle namespaces
-      saltObject.createAnnotation(null, a.getKey(), a.getValue());
+    if (attributes != null) {
+      for (Map.Entry<String, Object> a : attributes.entrySet()) {
+        // TODO: handle namespaces
+        saltObject.createAnnotation(null, a.getKey(), a.getValue());
+      }
     }
   }
 
