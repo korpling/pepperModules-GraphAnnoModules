@@ -19,10 +19,11 @@ package org.corpus_tools.peppermodules.graphAnnoModules;
 
 import com.google.common.collect.ComparisonChain;
 import com.google.gson.Gson;
-import java.io.File;
-import java.io.FileReader;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -68,8 +69,9 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
     structById.clear();
 
     // Load JSON file
-    try (FileReader reader =
-        new FileReader(new File(getResourceURI().toFileString()), StandardCharsets.UTF_8)) {
+    try (BufferedReader reader =
+        Files.newBufferedReader(Paths.get(getResourceURI().toFileString()),
+            StandardCharsets.UTF_8)) {
       Gson gson = new Gson();
       PartFile partFile = gson.fromJson(reader, PartFile.class);
 

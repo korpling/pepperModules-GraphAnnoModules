@@ -17,8 +17,8 @@ package org.corpus_tools.peppermodules.graphAnnoModules;
 
 import com.google.common.io.Files;
 import com.google.gson.Gson;
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.corpus_tools.pepper.common.PepperConfiguration;
@@ -70,8 +70,8 @@ public class GraphAnnoImporter extends PepperImporterImpl {
       SCorpus rootCorpus = getCorpusGraph().createCorpus(null, corpusPath.getName());
       // Parse the file and get the linked JSON document files
       Gson gson = new Gson();
-      try (FileReader reader =
-          new FileReader(new File(corpusPath, "master.json"), StandardCharsets.UTF_8)) {
+      try (BufferedReader reader =
+          Files.newReader(new File(corpusPath, "master.json"), StandardCharsets.UTF_8)) {
 
         MasterFile masterFile = gson.fromJson(reader, MasterFile.class);
 
