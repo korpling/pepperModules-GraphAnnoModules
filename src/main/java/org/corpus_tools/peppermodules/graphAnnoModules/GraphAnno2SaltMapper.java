@@ -38,6 +38,7 @@ import org.corpus_tools.salt.semantics.SSentenceAnnotation;
 
 public class GraphAnno2SaltMapper extends PepperMapperImpl {
 
+  private static final String TOKEN = "token";
   private final Map<Long, Node> nodeById = new HashMap<>();
   private final Map<Long, SToken> tokenById = new HashMap<>();
   private final Map<Long, SStructure> structById = new HashMap<>();
@@ -61,7 +62,6 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
       // Create an empty data source for the graph
       SDocumentGraph g = getDocument().getDocumentGraph();
       STextualDS ds = g.createTextualDS("");
-
 
       for (Node sentence : getSortedSentenceNodes(partFile)) {
         mapSentence(partFile, sentence, ds);
@@ -153,7 +153,7 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
 
     // Sort the tokens by the ordering edges
     List<Node> sortedToken = getSortedTokenNodes(f, coveredTokenIds);
-    List<String> tokenTexts = sortedToken.stream().map(n -> n.getAttr().get("token").toString())
+    List<String> tokenTexts = sortedToken.stream().map(n -> n.getAttr().get(TOKEN).toString())
         .collect(Collectors.toList());
 
     // Add the tokens for this sentence to the graph
@@ -207,7 +207,9 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
     if (attributes != null) {
       for (Map.Entry<String, Object> a : attributes.entrySet()) {
         // TODO: handle namespaces
-        saltObject.createAnnotation(null, a.getKey(), a.getValue());
+        if (!(saltObject instanceof SToken) || !TOKEN.equals(a.getValue())) {
+          saltObject.createAnnotation(null, a.getKey(), a.getValue());
+        }
       }
     }
   }
