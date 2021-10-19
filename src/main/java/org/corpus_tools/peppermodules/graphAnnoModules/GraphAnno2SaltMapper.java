@@ -226,7 +226,7 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
     if (attributes != null) {
       for (Map.Entry<String, Object> a : attributes.entrySet()) {
         // TODO: handle namespaces
-        if (!(saltObject instanceof SToken) || !TOKEN.equals(a.getValue())) {
+        if (!(saltObject instanceof SToken) || !TOKEN.equals(a.getKey())) {
           saltObject.createAnnotation(null, a.getKey(), a.getValue());
         }
       }
