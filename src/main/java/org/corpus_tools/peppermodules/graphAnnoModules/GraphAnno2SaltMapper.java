@@ -1,5 +1,6 @@
 package org.corpus_tools.peppermodules.graphAnnoModules;
 
+import com.google.common.collect.ComparisonChain;
 import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileReader;
@@ -114,12 +115,12 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
 
     Map<Long, Node> graphAnnoTokenById =
         tokenNodes.parallelStream().collect(Collectors.toMap(Node::getId, n -> n));
-    Optional<Node> rootNode = graphAnnoTokenById.values().parallelStream()
-        .filter(n -> !hasIncomingOrdering.contains(n.getId())).findAny();
+    Set<Node> rootNodes = graphAnnoTokenById.values().parallelStream()
+        .filter(n -> !hasIncomingOrdering.contains(n.getId())).collect(Collectors.toSet());
 
     List<Node> orderedTokenNodes = new ArrayList<>();
-    if (rootNode.isPresent()) {
-      Node currentNode = rootNode.get();
+    if (rootNodes.size() == 1) {
+      Node currentNode = rootNodes.iterator().next();
       // Traverse the ordering edges from the root node
       while (currentNode != null) {
         orderedTokenNodes.add(currentNode);
@@ -131,6 +132,11 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
           currentNode = graphAnnoTokenById.get(nextTokenId);
         }
       }
+    } else {
+      // There are no ordering edges for all token, try to order token by their time code
+      orderedTokenNodes.addAll(tokenNodes);
+      orderedTokenNodes.sort((n1, n2) -> ComparisonChain.start()
+          .compare(n1.getStart(), n2.getStart()).compare(n1.getEnd(), n2.getEnd()).result());
     }
     return orderedTokenNodes;
   }
