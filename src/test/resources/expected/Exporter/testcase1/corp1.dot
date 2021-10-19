@@ -1,6 +1,0 @@
-digraph G {
-ordering=out;
-<corp1>[shape=Mrecord,color=gray28,style=filled];
-<corp1/doc1>[shape=Mrecord,color=gray,style=filled];
-<corp1> -> <corp1/doc1>[color=gray,style=filled];
-}
