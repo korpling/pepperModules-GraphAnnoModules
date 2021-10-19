@@ -43,20 +43,19 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
     SCorpus rootCorpus = (SCorpus) cg.getRoots().get(0);
     assertEquals("sampleCorpus", rootCorpus.getName());
 
-    assertEquals(2, cg.getDocuments().size());
+    assertEquals(3, cg.getDocuments().size());
     SDocument doc1 = cg.getDocuments().get(0);
     assertEquals("0001", doc1.getName());
-    
-    assertEquals(2, cg.getDocuments().size());
     SDocument doc2 = cg.getDocuments().get(1);
     assertEquals("0002", doc2.getName());
+    SDocument doc3 = cg.getDocuments().get(2);
+    assertEquals("0003", doc3.getName());
   }
 
   @Test
   public void testDocumentMapping() {
     start();
 
-    assertEquals(2, getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().size());
     SDocument doc = getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().get(0);
     SDocumentGraph g = doc.getDocumentGraph();
     
@@ -100,7 +99,6 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
   public void testTokenMappingByTime() {
     start();
 
-    assertEquals(2, getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().size());
     SDocument doc = getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().get(1);
     SDocumentGraph g = doc.getDocumentGraph();
 
@@ -124,6 +122,34 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
     List<SSpan> sentences = spans.stream().filter(s -> s.getAnnotation("salt::unit") != null)
         .collect(Collectors.toList());
     assertEquals(1, sentences.size());
+  }
+
+  @Test
+  public void testSentenceOrder() {
+    start();
+
+    SDocument doc = getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().get(2);
+    SDocumentGraph g = doc.getDocumentGraph();
+
+    assertNotNull(g);;
+
+
+    assertEquals(1, g.getTextualDSs().size());
+    assertEquals("A1 A2 B1 B2 ",
+        g.getTextualDSs().get(0).getText());
+
+    // Test token
+    List<SToken> token = doc.getDocumentGraph().getSortedTokenByText();
+    assertEquals(4, token.size());
+    List<String> tokenTexts = token.stream().map(t -> g.getText(t)).collect(Collectors.toList());
+    assertArrayEquals(new String[] {"A1", "A2", "B1", "B2"}, tokenTexts.toArray());
+
+    // Check that sentence spans have been created
+    List<SSpan> spans = doc.getDocumentGraph().getSpans();
+    assertNotNull(spans);
+    List<SSpan> sentences = spans.stream().filter(s -> s.getAnnotation("salt::unit") != null)
+        .collect(Collectors.toList());
+    assertEquals(2, sentences.size());
   }
 
 }
