@@ -96,4 +96,34 @@ public class GraphAnnoImporterTest extends PepperImporterTest {
     assertEquals(1, sentences.size());
   }
 
+  @Test
+  public void testTokenMappingByTime() {
+    start();
+
+    assertEquals(2, getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().size());
+    SDocument doc = getFixture().getSaltProject().getCorpusGraphs().get(0).getDocuments().get(1);
+    SDocumentGraph g = doc.getDocumentGraph();
+
+    assertNotNull(g);;
+
+
+    assertEquals(1, g.getTextualDSs().size());
+    assertEquals("Is this example more complicated than it appears to be ? ",
+        g.getTextualDSs().get(0).getText());
+
+    // Test token
+    List<SToken> token = doc.getDocumentGraph().getSortedTokenByText();
+    assertEquals(11, token.size());
+    List<String> tokenTexts = token.stream().map(t -> g.getText(t)).collect(Collectors.toList());
+    assertArrayEquals(new String[] {"Is", "this", "example", "more", "complicated", "than", "it",
+        "appears", "to", "be", "?"}, tokenTexts.toArray());
+
+    // Check that sentence spans have been created
+    List<SSpan> spans = doc.getDocumentGraph().getSpans();
+    assertNotNull(spans);
+    List<SSpan> sentences = spans.stream().filter(s -> s.getAnnotation("salt::unit") != null)
+        .collect(Collectors.toList());
+    assertEquals(1, sentences.size());
+  }
+
 }

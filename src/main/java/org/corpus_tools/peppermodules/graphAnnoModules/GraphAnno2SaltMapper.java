@@ -32,7 +32,6 @@ import org.corpus_tools.salt.common.SStructuredNode;
 import org.corpus_tools.salt.common.STextualDS;
 import org.corpus_tools.salt.common.SToken;
 import org.corpus_tools.salt.core.SAnnotationContainer;
-import org.corpus_tools.salt.core.SNode;
 import org.corpus_tools.salt.semantics.SSentenceAnnotation;
 
 public class GraphAnno2SaltMapper extends PepperMapperImpl {
