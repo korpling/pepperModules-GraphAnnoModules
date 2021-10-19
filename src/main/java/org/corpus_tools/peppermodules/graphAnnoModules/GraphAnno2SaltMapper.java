@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -36,11 +37,16 @@ import org.corpus_tools.salt.semantics.SSentenceAnnotation;
 
 public class GraphAnno2SaltMapper extends PepperMapperImpl {
 
+  private final Map<Long, Node> nodeById = new HashMap<>();
   private final Map<Long, SToken> tokenById = new HashMap<>();
   private final Map<Long, SStructure> structById = new HashMap<>();
 
   @Override
   public DOCUMENT_STATUS mapSDocument() {
+
+    nodeById.clear();
+    tokenById.clear();
+    structById.clear();
 
     // Load JSON file
     try (FileReader reader =
@@ -48,8 +54,18 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
       Gson gson = new Gson();
       PartFile partFile = gson.fromJson(reader, PartFile.class);
 
-      mapToken(partFile);
-      mapSentences(partFile);
+      nodeById.putAll(
+          partFile.getNodes().parallelStream().collect(Collectors.toMap(Node::getId, n -> n)));
+
+      // Create an empty data source for the graph
+      SDocumentGraph g = getDocument().getDocumentGraph();
+      STextualDS ds = g.createTextualDS("");
+
+
+      for (Node sentence : getSortedSentenceNodes(partFile)) {
+        mapSentence(partFile, sentence, ds);
+      }
+
       mapAnnotationNodes(partFile);
       mapAnnotationEdges(partFile);
 
@@ -59,97 +75,128 @@ public class GraphAnno2SaltMapper extends PepperMapperImpl {
     }
   }
 
-  private void mapToken(PartFile f) {
-
-    Map<Long, Node> tokenById = f.getNodes().parallelStream().filter(n -> n.getType() == NodeType.t)
-        .collect(Collectors.toMap(Node::getId, n -> n));
-    Map<Long, Long> connectedToken =
+  private List<Node> getSortedSentenceNodes(PartFile f) {
+    // Find the sentence node with no incoming ordering edge
+    Map<Long, Long> connectedNodes =
         f.getEdges().parallelStream().filter(e -> e.getType() == EdgeType.o)
             .collect(Collectors.toMap(Edge::getStart, Edge::getEnd));
+    Set<Long> hasIncomingOrdering = new HashSet<>(connectedNodes.values());
 
-    // Find the token node with no incoming ordering edge
-    Set<Long> tokenHasIncomingOrdering = new HashSet<>(connectedToken.values());
-    Optional<Node> rootNode = tokenById.values().parallelStream()
-        .filter(n -> !tokenHasIncomingOrdering.contains(n.getId())).findAny();
+    Map<Long, Node> sentenceById = f.getNodes().parallelStream()
+        .filter(n -> n.getType() == NodeType.s).collect(Collectors.toMap(Node::getId, n -> n));
+    Optional<Node> rootNode = sentenceById.values().parallelStream()
+        .filter(n -> !hasIncomingOrdering.contains(n.getId())).findAny();
 
-    List<String> tokenTexts = new LinkedList<>();
-    List<Node> tokenNodes = new ArrayList<>();
+    List<Node> orderedSentenceNodes = new ArrayList<>();
     if (rootNode.isPresent()) {
       Node currentNode = rootNode.get();
       // Traverse the ordering edges from the root node
       while (currentNode != null) {
-        tokenTexts.add(currentNode.getAttr().get("token").toString());
-        tokenNodes.add(currentNode);
+        orderedSentenceNodes.add(currentNode);
 
-        Long nextTokenId = connectedToken.get(currentNode.getId());
-        if (nextTokenId == null) {
+        Long nextSentenceId = connectedNodes.get(currentNode.getId());
+        if (nextSentenceId == null) {
           currentNode = null;
         } else {
-          currentNode = tokenById.get(nextTokenId);
+          currentNode = sentenceById.get(nextSentenceId);
         }
       }
     }
+    return orderedSentenceNodes;
+  }
 
+  private List<Node> getSortedTokenNodes(PartFile f, Collection<Node> tokenNodes) {
+    // Find the token node with no incoming ordering edge
+    Map<Long, Long> connectedNodes =
+        f.getEdges().parallelStream().filter(e -> e.getType() == EdgeType.o)
+            .collect(Collectors.toMap(Edge::getStart, Edge::getEnd));
+    Set<Long> hasIncomingOrdering = new HashSet<>(connectedNodes.values());
+
+    Map<Long, Node> graphAnnoTokenById =
+        tokenNodes.parallelStream().collect(Collectors.toMap(Node::getId, n -> n));
+    Optional<Node> rootNode = graphAnnoTokenById.values().parallelStream()
+        .filter(n -> !hasIncomingOrdering.contains(n.getId())).findAny();
+
+    List<Node> orderedTokenNodes = new ArrayList<>();
+    if (rootNode.isPresent()) {
+      Node currentNode = rootNode.get();
+      // Traverse the ordering edges from the root node
+      while (currentNode != null) {
+        orderedTokenNodes.add(currentNode);
+
+        Long nextTokenId = connectedNodes.get(currentNode.getId());
+        if (nextTokenId == null) {
+          currentNode = null;
+        } else {
+          currentNode = graphAnnoTokenById.get(nextTokenId);
+        }
+      }
+    }
+    return orderedTokenNodes;
+  }
+
+
+  private void mapSentence(PartFile f, Node sentence, STextualDS ds) {
     SDocumentGraph g = getDocument().getDocumentGraph();
-    STextualDS ds = g.createTextualDS("");
-    List<SToken> token = g.insertTokensAt(ds, 0, tokenTexts, true);
-    for (int i = 0; i < token.size() && i < tokenNodes.size(); i++) {
-      SToken saltToken = token.get(i);
-      Node graphAnnoNode = tokenNodes.get(i);
+
+    // Get all token belonging to this node
+    Set<Node> coveredTokenIds = f.getEdges().parallelStream()
+        .filter(e -> e.getType() == EdgeType.s && e.getStart() == sentence.getId())
+        .map(e -> this.nodeById.get(e.getEnd()))
+        .filter(Objects::nonNull)
+        .filter(n -> n.getType() == NodeType.t)
+        .collect(Collectors.toSet());
+
+    // Sort the tokens by the ordering edges
+    List<Node> sortedToken = getSortedTokenNodes(f, coveredTokenIds);
+    List<String> tokenTexts = sortedToken.stream().map(n -> n.getAttr().get("token").toString())
+        .collect(Collectors.toList());
+
+    // Add the tokens for this sentence to the graph
+    List<SToken> createdToken = g.insertTokensAt(ds, ds.getText().length(), tokenTexts, true);
+    // Create helper maps for the created tokens and map their annotations
+    for (int i = 0; i < sortedToken.size() && i < sortedToken.size(); i++) {
+      SToken saltToken = createdToken.get(i);
+      Node graphAnnoNode = sortedToken.get(i);
       this.tokenById.put(graphAnnoNode.getId(), saltToken);
       saltToken.setName("" + graphAnnoNode.getId());
       mapAttributes(graphAnnoNode.getAttr(), saltToken);
     }
+
+    // Create span node for this sentence
+    SSpan sentenceSpan = g.createSpan(new LinkedList<>(createdToken));
+    SSentenceAnnotation sentenceAnno = SaltFactory.createSSentenceAnnotation();
+    sentenceSpan.addAnnotation(sentenceAnno);
+
   }
 
-
-  private void mapSentences(PartFile f) {
-    SDocumentGraph g = getDocument().getDocumentGraph();
-
-    // Get all sentence nodes
-    Map<Long, Node> sentenceNodesById =
-        f.getNodes().parallelStream().filter(n -> n.getType() == NodeType.s)
-            .collect(Collectors.toMap(Node::getId, n -> n));
-    for (Map.Entry<Long, Node> entry : sentenceNodesById.entrySet()) {
-      // Get all token belonging to this node
-      Set<SToken> coveredToken = f.getEdges().parallelStream()
-          .filter(e -> e.getType() == EdgeType.s && e.getStart() == entry.getKey())
-          .map(e -> this.tokenById.get(e.getEnd())).filter(Objects::nonNull)
-          .collect(Collectors.toSet());
-      // Create span node for this sentence
-      SSpan sentenceSpan = g.createSpan(new LinkedList<>(coveredToken));
-      SSentenceAnnotation sentenceAnno = SaltFactory.createSSentenceAnnotation();
-      sentenceSpan.addAnnotation(sentenceAnno);
-    }
-  }
-  
   private void mapAnnotationNodes(PartFile f) {
-	 SDocumentGraph g = getDocument().getDocumentGraph();
-	 f.getNodes().stream().filter(n -> n.getType() == NodeType.a).forEach(n -> {
-		SStructure struct =  SaltFactory.createSStructure();
-		this.structById.put(n.getId(), struct);
-		mapAttributes(n.getAttr(), struct);
-		g.addNode(struct);
-	 });
+    SDocumentGraph g = getDocument().getDocumentGraph();
+    f.getNodes().stream().filter(n -> n.getType() == NodeType.a).forEach(n -> {
+      SStructure struct = SaltFactory.createSStructure();
+      this.structById.put(n.getId(), struct);
+      mapAttributes(n.getAttr(), struct);
+      g.addNode(struct);
+    });
   }
-  
+
   private void mapAnnotationEdges(PartFile f) {
-	  SDocumentGraph g = getDocument().getDocumentGraph();
-	  f.getEdges().stream().filter(e -> e.getType() == EdgeType.a).forEach(e -> {
-		  // Try to get source and target nodes
-		  SStructure source = this.structById.get(e.getStart());
-		  SStructuredNode target = this.structById.get(e.getEnd());
-		  if(target == null) {
-			  target = this.tokenById.get(e.getEnd());
-		  }
-		  if(source != null && target != null) {
-			  SDominanceRelation rel = SaltFactory.createSDominanceRelation();
-			  mapAttributes(e.getAttr(), rel);
-			  rel.setSource(source);
-			  rel.setTarget(target);
-			  g.addRelation(rel);
-		  }
-	  });
+    SDocumentGraph g = getDocument().getDocumentGraph();
+    f.getEdges().stream().filter(e -> e.getType() == EdgeType.a).forEach(e -> {
+      // Try to get source and target nodes
+      SStructure source = this.structById.get(e.getStart());
+      SStructuredNode target = this.structById.get(e.getEnd());
+      if (target == null) {
+        target = this.tokenById.get(e.getEnd());
+      }
+      if (source != null && target != null) {
+        SDominanceRelation rel = SaltFactory.createSDominanceRelation();
+        mapAttributes(e.getAttr(), rel);
+        rel.setSource(source);
+        rel.setTarget(target);
+        g.addRelation(rel);
+      }
+    });
   }
 
   private void mapAttributes(Map<String, Object> attributes, SAnnotationContainer saltObject) {
